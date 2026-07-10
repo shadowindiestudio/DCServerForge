@@ -1,0 +1,15 @@
+services:
+  dcserverforge:
+    build: .
+    container_name: dcserverforge
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - forge-net
+
+networks:
+  forge-net:
+    driver: bridge

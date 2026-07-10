@@ -1,0 +1,138 @@
+{
+  "id": "plan_example_gaming",
+  "name": "Gaming Community",
+  "description": "A gaming community server with roles, text channels, voice channels, and a forum.",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "roles": [
+    {
+      "id": "role_admin",
+      "name": "Admin",
+      "color": 16711680,
+      "hoist": true,
+      "mentionable": true,
+      "permissions": "8",
+      "position": 10
+    },
+    {
+      "id": "role_moderator",
+      "name": "Moderator",
+      "color": 5763719,
+      "hoist": true,
+      "mentionable": true,
+      "permissions": "1099511627776",
+      "position": 5
+    },
+    {
+      "id": "role_member",
+      "name": "Member",
+      "hoist": false,
+      "mentionable": false,
+      "permissions": "0",
+      "position": 1
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_info",
+      "name": "Information",
+      "position": 0,
+      "channels": [
+        {
+          "id": "ch_welcome",
+          "name": "welcome",
+          "type": "text",
+          "topic": "Welcome to the server!",
+          "parentId": "cat_info",
+          "overwrites": []
+        },
+        {
+          "id": "ch_rules",
+          "name": "rules",
+          "type": "text",
+          "topic": "Server rules and guidelines",
+          "parentId": "cat_info",
+          "overwrites": []
+        },
+        {
+          "id": "ch_announcements",
+          "name": "announcements",
+          "type": "announcement",
+          "topic": "Server announcements",
+          "parentId": "cat_info",
+          "overwrites": []
+        }
+      ],
+      "overwrites": []
+    },
+    {
+      "id": "cat_general",
+      "name": "General",
+      "position": 1,
+      "channels": [
+        {
+          "id": "ch_general",
+          "name": "general",
+          "type": "text",
+          "topic": "General discussion",
+          "parentId": "cat_general",
+          "overwrites": []
+        },
+        {
+          "id": "ch_off_topic",
+          "name": "off-topic",
+          "type": "text",
+          "topic": "Off-topic chatter",
+          "parentId": "cat_general",
+          "overwrites": []
+        },
+        {
+          "id": "ch_general_vc",
+          "name": "General VC",
+          "type": "voice",
+          "userLimit": 20,
+          "parentId": "cat_general",
+          "overwrites": []
+        }
+      ],
+      "overwrites": []
+    },
+    {
+      "id": "cat_gaming",
+      "name": "Gaming",
+      "position": 2,
+      "channels": [
+        {
+          "id": "ch_lfg",
+          "name": "looking-for-group",
+          "type": "text",
+          "topic": "Find players for your games",
+          "parentId": "cat_gaming",
+          "overwrites": []
+        },
+        {
+          "id": "ch_clips",
+          "name": "clips",
+          "type": "text",
+          "topic": "Share your best gaming clips",
+          "parentId": "cat_gaming",
+          "overwrites": []
+        },
+        {
+          "id": "ch_squad_finder",
+          "name": "squad-finder",
+          "type": "forum",
+          "topic": "Post and find squads for multiplayer games",
+          "parentId": "cat_gaming",
+          "overwrites": []
+        }
+      ],
+      "overwrites": []
+    }
+  ],
+  "metadata": {
+    "example": true,
+    "generatedBy": "manual"
+  }
+}
