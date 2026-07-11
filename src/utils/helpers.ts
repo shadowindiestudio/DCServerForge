@@ -17,7 +17,9 @@ export function chunkArray<T>(array: readonly T[], size: number): T[][] {
   return chunks;
 }
 
-export function safeJsonParse<T>(json: string): { ok: true; value: T } | { ok: false; error: string } {
+export function safeJsonParse<T>(
+  json: string,
+): { ok: true; value: T } | { ok: false; error: string } {
   try {
     return { ok: true, value: JSON.parse(json) as T };
   } catch (err) {

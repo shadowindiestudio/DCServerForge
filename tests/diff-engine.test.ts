@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { PlanDiffEngine } from '../src/diff/diff-engine.js';
-import { createPlan, createRole, createCategory, createChannel } from '../src/forge-plan/factory.js';
+import {
+  createPlan,
+  createRole,
+  createCategory,
+  createChannel,
+} from '../src/forge-plan/factory.js';
 import { ChannelType } from '../src/types/enums.js';
 
 describe('PlanDiffEngine', () => {
@@ -40,7 +45,14 @@ describe('PlanDiffEngine', () => {
         createCategory({
           id: 'cat_1',
           name: 'Main',
-          channels: [createChannel({ id: 'ch_1', name: 'general', type: ChannelType.TEXT, parentId: 'cat_1' })],
+          channels: [
+            createChannel({
+              id: 'ch_1',
+              name: 'general',
+              type: ChannelType.TEXT,
+              parentId: 'cat_1',
+            }),
+          ],
         }),
       ],
     });
@@ -54,7 +66,11 @@ describe('PlanDiffEngine', () => {
     const newPlan = createPlan({ id: 'p1', name: 'New Name' });
 
     const result = diffEngine.diff(oldPlan, newPlan);
-    expect(result.entries.some((e) => e.type === 'modified' && e.entityType === 'plan' && e.path === 'name')).toBe(true);
+    expect(
+      result.entries.some(
+        (e) => e.type === 'modified' && e.entityType === 'plan' && e.path === 'name',
+      ),
+    ).toBe(true);
   });
 
   it('returns no changes for identical plans', () => {

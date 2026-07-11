@@ -9,7 +9,16 @@ import {
   LogLevel,
 } from './enums.js';
 
-export { ChannelType, OverwriteType, RoleDisplayStyle, PlanStatus, BuildPhase, DiagnosticSeverity, AIProvider, LogLevel };
+export {
+  ChannelType,
+  OverwriteType,
+  RoleDisplayStyle,
+  PlanStatus,
+  BuildPhase,
+  DiagnosticSeverity,
+  AIProvider,
+  LogLevel,
+};
 
 /** A permission overwrite applied to a specific channel. */
 export interface PermissionOverwrite {

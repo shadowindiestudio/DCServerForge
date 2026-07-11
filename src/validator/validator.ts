@@ -1,4 +1,9 @@
-import type { ForgePlan, ValidationResult, ValidationDiagnostic, ForgeRole,  } from '../types/index.js';
+import type {
+  ForgePlan,
+  ValidationResult,
+  ValidationDiagnostic,
+  ForgeRole,
+} from '../types/index.js';
 import { DiagnosticSeverity } from '../types/enums.js';
 import { forgePlanSchema } from '../forge-plan/schemas.js';
 

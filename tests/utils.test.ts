@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { extractJsonFromMarkdown, chunkArray, truncate, safeJsonParse } from '../src/utils/helpers.js';
+import {
+  extractJsonFromMarkdown,
+  chunkArray,
+  truncate,
+  safeJsonParse,
+} from '../src/utils/helpers.js';
 
 describe('Utils', () => {
   it('extracts JSON from markdown code block', () => {

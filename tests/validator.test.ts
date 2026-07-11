@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { PlanValidator } from '../src/validator/validator.js';
-import { createPlan, createRole, createCategory, createChannel } from '../src/forge-plan/factory.js';
+import {
+  createPlan,
+  createRole,
+  createCategory,
+  createChannel,
+} from '../src/forge-plan/factory.js';
 import { ChannelType } from '../src/types/enums.js';
 
 describe('PlanValidator', () => {
@@ -15,7 +20,14 @@ describe('PlanValidator', () => {
         createCategory({
           id: 'cat_1',
           name: 'Main',
-          channels: [createChannel({ id: 'ch_1', name: 'general', type: ChannelType.TEXT, parentId: 'cat_1' })],
+          channels: [
+            createChannel({
+              id: 'ch_1',
+              name: 'general',
+              type: ChannelType.TEXT,
+              parentId: 'cat_1',
+            }),
+          ],
         }),
       ],
     });
@@ -47,7 +59,14 @@ describe('PlanValidator', () => {
         createCategory({
           id: 'cat_1',
           name: 'Main',
-          channels: [createChannel({ id: 'ch_1', name: 'general', type: ChannelType.TEXT, parentId: 'cat_nonexistent' })],
+          channels: [
+            createChannel({
+              id: 'ch_1',
+              name: 'general',
+              type: ChannelType.TEXT,
+              parentId: 'cat_nonexistent',
+            }),
+          ],
         }),
       ],
     });
@@ -65,7 +84,14 @@ describe('PlanValidator', () => {
         createCategory({
           id: 'cat_1',
           name: 'Main',
-          channels: [createChannel({ id: 'ch_1', name: 'Bad Channel Name', type: ChannelType.TEXT, parentId: 'cat_1' })],
+          channels: [
+            createChannel({
+              id: 'ch_1',
+              name: 'Bad Channel Name',
+              type: ChannelType.TEXT,
+              parentId: 'cat_1',
+            }),
+          ],
         }),
       ],
     });
