@@ -5,5 +5,4 @@ data
 .env
 *.md
 docs
-tests
 coverage
