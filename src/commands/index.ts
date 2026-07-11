@@ -19,7 +19,7 @@ export function createAllCommands(): SlashCommand[] {
   ];
 }
 
-export { SlashCommand, CommandDependencies } from './command.js';
+export type { SlashCommand, CommandDependencies } from './command.js';
 export { PingCommand } from './impl/ping.js';
 export { StatusCommand } from './impl/status.js';
 export { GenerateCommand } from './impl/generate.js';
