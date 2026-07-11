@@ -18,9 +18,14 @@ export class CommandRegistrar {
     this.logger.info('Global slash commands registered');
   }
 
-  async registerGuild(commands: RESTPostAPIApplicationCommandsJSONBody[], guildId: string): Promise<void> {
+  async registerGuild(
+    commands: RESTPostAPIApplicationCommandsJSONBody[],
+    guildId: string,
+  ): Promise<void> {
     this.logger.info('Registering guild slash commands', { count: commands.length, guildId });
-    await this.rest.put(Routes.applicationGuildCommands(this.clientId, guildId), { body: commands });
+    await this.rest.put(Routes.applicationGuildCommands(this.clientId, guildId), {
+      body: commands,
+    });
     this.logger.info('Guild slash commands registered', { guildId });
   }
 

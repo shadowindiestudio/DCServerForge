@@ -35,7 +35,10 @@ export class ConfirmBuildHandler implements InteractionHandler {
 
       if (result.success) {
         const successCount = result.steps.filter((s) => s.success).length;
-        const embed = createSuccessEmbed('Build Complete', `Deployed ${successCount} entities successfully.`);
+        const embed = createSuccessEmbed(
+          'Build Complete',
+          `Deployed ${successCount} entities successfully.`,
+        );
         await interaction.editReply({ embeds: [embed] });
       } else {
         const embed = createInfoEmbed('Build Failed', result.error ?? 'Unknown error');

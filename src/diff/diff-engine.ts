@@ -22,12 +22,24 @@ export class PlanDiffEngine implements DiffEngine {
 
     for (const [id, role] of oldRoles) {
       if (!newRoles.has(id)) {
-        entries.push({ type: 'removed', entityType: 'role', entityId: id, oldValue: role, path: 'roles' });
+        entries.push({
+          type: 'removed',
+          entityType: 'role',
+          entityId: id,
+          oldValue: role,
+          path: 'roles',
+        });
       }
     }
     for (const [id, role] of newRoles) {
       if (!oldRoles.has(id)) {
-        entries.push({ type: 'added', entityType: 'role', entityId: id, newValue: role, path: 'roles' });
+        entries.push({
+          type: 'added',
+          entityType: 'role',
+          entityId: id,
+          newValue: role,
+          path: 'roles',
+        });
       } else {
         const oldRole = oldRoles.get(id)!;
         if (JSON.stringify(oldRole) !== JSON.stringify(role)) {
@@ -50,12 +62,24 @@ export class PlanDiffEngine implements DiffEngine {
 
     for (const [id, cat] of oldCats) {
       if (!newCats.has(id)) {
-        entries.push({ type: 'removed', entityType: 'category', entityId: id, oldValue: cat, path: 'categories' });
+        entries.push({
+          type: 'removed',
+          entityType: 'category',
+          entityId: id,
+          oldValue: cat,
+          path: 'categories',
+        });
       }
     }
     for (const [id, cat] of newCats) {
       if (!oldCats.has(id)) {
-        entries.push({ type: 'added', entityType: 'category', entityId: id, newValue: cat, path: 'categories' });
+        entries.push({
+          type: 'added',
+          entityType: 'category',
+          entityId: id,
+          newValue: cat,
+          path: 'categories',
+        });
       } else {
         const oldCat = oldCats.get(id)!;
         if (oldCat.position !== cat.position) {

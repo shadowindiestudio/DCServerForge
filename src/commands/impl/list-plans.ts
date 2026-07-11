@@ -7,9 +7,15 @@ export class ListPlansCommand implements SlashCommand {
   readonly name = 'plans';
   readonly description = 'List all stored Forge Plans.';
 
-  readonly data = new SlashCommandBuilder().setName(this.name).setDescription(this.description).toJSON();
+  readonly data = new SlashCommandBuilder()
+    .setName(this.name)
+    .setDescription(this.description)
+    .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    deps: CommandDependencies,
+  ): Promise<void> {
     if (!interaction.guild) {
       await replyEphemeral(interaction, 'This command can only be used in a server.');
       return;
@@ -22,7 +28,10 @@ export class ListPlansCommand implements SlashCommand {
       const planIds = await deps.store.list();
 
       if (planIds.length === 0) {
-        const embed = createInfoEmbed('No Plans', 'No Forge Plans are currently stored. Use `/generate` to create one.');
+        const embed = createInfoEmbed(
+          'No Plans',
+          'No Forge Plans are currently stored. Use `/generate` to create one.',
+        );
         await interaction.editReply({ embeds: [embed] });
         return;
       }
@@ -34,7 +43,10 @@ export class ListPlansCommand implements SlashCommand {
         inline: false,
       }));
 
-      const embed = createInfoEmbed('Stored Forge Plans', `${plans.length} plan(s) found.`).addFields(fields);
+      const embed = createInfoEmbed(
+        'Stored Forge Plans',
+        `${plans.length} plan(s) found.`,
+      ).addFields(fields);
 
       await interaction.editReply({ embeds: [embed] });
     } catch (err) {

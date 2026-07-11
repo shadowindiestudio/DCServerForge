@@ -6,9 +6,15 @@ export class PingCommand implements SlashCommand {
   readonly name = 'ping';
   readonly description = 'Check bot latency and status.';
 
-  readonly data = new SlashCommandBuilder().setName(this.name).setDescription(this.description).toJSON();
+  readonly data = new SlashCommandBuilder()
+    .setName(this.name)
+    .setDescription(this.description)
+    .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, _deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    _deps: CommandDependencies,
+  ): Promise<void> {
     const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
     const latency = sent.createdTimestamp - interaction.createdTimestamp;
 

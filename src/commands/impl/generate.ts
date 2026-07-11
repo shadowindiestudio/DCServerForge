@@ -12,11 +12,18 @@ export class GenerateCommand implements SlashCommand {
     .setName(this.name)
     .setDescription(this.description)
     .addStringOption((opt) =>
-      opt.setName('prompt').setDescription('Describe the server you want to build.').setRequired(true).setMaxLength(2000),
+      opt
+        .setName('prompt')
+        .setDescription('Describe the server you want to build.')
+        .setRequired(true)
+        .setMaxLength(2000),
     )
     .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    deps: CommandDependencies,
+  ): Promise<void> {
     if (!interaction.guild) {
       await replyEphemeral(interaction, 'This command can only be used in a server.');
       return;
@@ -58,12 +65,18 @@ export class GenerateCommand implements SlashCommand {
 
       await deps.store.save(plan);
 
-      const embed = createInfoEmbed('Forge Plan Generated', `Plan ID: \`${plan.id}\`\n\nUse \`/validate\` to check it, or \`/build\` to deploy.`)
-        .addFields(
-          { name: 'Roles', value: plan.roles.length.toString(), inline: true },
-          { name: 'Categories', value: plan.categories.length.toString(), inline: true },
-          { name: 'Channels', value: plan.categories.reduce((sum, c) => sum + c.channels.length, 0).toString(), inline: true },
-        );
+      const embed = createInfoEmbed(
+        'Forge Plan Generated',
+        `Plan ID: \`${plan.id}\`\n\nUse \`/validate\` to check it, or \`/build\` to deploy.`,
+      ).addFields(
+        { name: 'Roles', value: plan.roles.length.toString(), inline: true },
+        { name: 'Categories', value: plan.categories.length.toString(), inline: true },
+        {
+          name: 'Channels',
+          value: plan.categories.reduce((sum, c) => sum + c.channels.length, 0).toString(),
+          inline: true,
+        },
+      );
 
       await interaction.editReply({ embeds: [embed] });
       logger.info('Forge Plan generated and stored', { planId: plan.id });

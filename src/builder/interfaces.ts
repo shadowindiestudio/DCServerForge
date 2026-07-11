@@ -21,11 +21,19 @@ export type ProgressCallback = (progress: BuildProgress) => void;
 export interface GuildState {
   readonly existingRoles: ReadonlyMap<string, { id: string; name: string }>;
   readonly existingCategories: ReadonlyMap<string, { id: string; name: string }>;
-  readonly existingChannels: ReadonlyMap<string, { id: string; name: string; parentId: string | null }>;
+  readonly existingChannels: ReadonlyMap<
+    string,
+    { id: string; name: string; parentId: string | null }
+  >;
 }
 
 export interface DiscordBuilderInterface {
-  build(plan: ForgePlan, guildId: string, options?: Partial<BuilderOptions>, onProgress?: ProgressCallback): Promise<BuildResult>;
+  build(
+    plan: ForgePlan,
+    guildId: string,
+    options?: Partial<BuilderOptions>,
+    onProgress?: ProgressCallback,
+  ): Promise<BuildResult>;
   dryRun(plan: ForgePlan, guildId: string): Promise<BuildResult>;
   getCurrentState(guildId: string): Promise<GuildState>;
 }

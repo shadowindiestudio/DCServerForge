@@ -37,7 +37,14 @@ export function createErrorEmbed(title: string, description?: string): EmbedBuil
   return embed;
 }
 
-export function createPlanSummaryEmbed(planName: string, planDescription: string | undefined, status: PlanStatus, roleCount: number, categoryCount: number, channelCount: number): EmbedBuilder {
+export function createPlanSummaryEmbed(
+  planName: string,
+  planDescription: string | undefined,
+  status: PlanStatus,
+  roleCount: number,
+  categoryCount: number,
+  channelCount: number,
+): EmbedBuilder {
   const statusEmoji: Record<PlanStatus, string> = {
     [PlanStatus.DRAFT]: '📝',
     [PlanStatus.VALIDATED]: '✅',
@@ -71,7 +78,11 @@ export async function replyEphemeral(
 }
 
 export async function replyError(
-  interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction,
+  interaction:
+    | ChatInputCommandInteraction
+    | ButtonInteraction
+    | StringSelectMenuInteraction
+    | ModalSubmitInteraction,
   title: string,
   description: string,
 ): Promise<void> {

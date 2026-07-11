@@ -15,7 +15,10 @@ export class ValidateCommand implements SlashCommand {
     )
     .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    deps: CommandDependencies,
+  ): Promise<void> {
     if (!interaction.guild) {
       await replyEphemeral(interaction, 'This command can only be used in a server.');
       return;
@@ -56,11 +59,13 @@ export class ValidateCommand implements SlashCommand {
           .join('\n')
           .slice(0, 1024);
 
-        const embed = createErrorEmbed('Plan Invalid', `Found ${result.diagnostics.filter((d) => d.severity === 'error').length} error(s).`)
-          .addFields(
-            { name: 'Errors', value: errors || 'None' },
-            { name: 'Warnings', value: warnings || 'None' },
-          );
+        const embed = createErrorEmbed(
+          'Plan Invalid',
+          `Found ${result.diagnostics.filter((d) => d.severity === 'error').length} error(s).`,
+        ).addFields(
+          { name: 'Errors', value: errors || 'None' },
+          { name: 'Warnings', value: warnings || 'None' },
+        );
 
         await interaction.editReply({ embeds: [embed] });
       }

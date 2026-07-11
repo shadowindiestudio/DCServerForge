@@ -14,11 +14,17 @@ export class BuildCommand implements SlashCommand {
       opt.setName('plan-id').setDescription('The Forge Plan ID to build.').setRequired(true),
     )
     .addBooleanOption((opt) =>
-      opt.setName('dry-run').setDescription('Simulate the build without making changes.').setRequired(false),
+      opt
+        .setName('dry-run')
+        .setDescription('Simulate the build without making changes.')
+        .setRequired(false),
     )
     .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    deps: CommandDependencies,
+  ): Promise<void> {
     if (!interaction.guild) {
       await replyEphemeral(interaction, 'This command can only be used in a server.');
       return;
@@ -63,7 +69,10 @@ export class BuildCommand implements SlashCommand {
         await interaction.editReply({ embeds: [embed] });
         logger.info('Build completed', { successCount, failCount });
       } else {
-        const embed = createErrorEmbed('Build Failed', result.error ?? 'Unknown error during build.');
+        const embed = createErrorEmbed(
+          'Build Failed',
+          result.error ?? 'Unknown error during build.',
+        );
         await interaction.editReply({ embeds: [embed] });
         logger.error('Build failed', new Error(result.error ?? 'Unknown'));
       }

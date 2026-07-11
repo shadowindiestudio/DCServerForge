@@ -23,7 +23,11 @@ class Logger {
   private sinks: LogSink[];
   private defaultContext: Record<string, unknown>;
 
-  constructor(level: LogLevel = LogLevel.INFO, sinks: LogSink[] = [], context: Record<string, unknown> = {}) {
+  constructor(
+    level: LogLevel = LogLevel.INFO,
+    sinks: LogSink[] = [],
+    context: Record<string, unknown> = {},
+  ) {
     this.level = level;
     this.sinks = sinks;
     this.defaultContext = context;
@@ -45,7 +49,12 @@ class Logger {
     return levelPriority[level] >= levelPriority[this.level];
   }
 
-  private emit(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error): void {
+  private emit(
+    level: LogLevel,
+    message: string,
+    context?: Record<string, unknown>,
+    error?: Error,
+  ): void {
     if (!this.shouldLog(level)) return;
 
     const entry: LogEntry = {

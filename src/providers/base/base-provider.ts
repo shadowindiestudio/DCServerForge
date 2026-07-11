@@ -61,5 +61,3 @@ export function createProvider(config: ProviderConfig): AIProviderInterface {
       throw new Error(`Unknown AI provider: ${config.provider as string}`);
   }
 }
-
-

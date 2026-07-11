@@ -6,7 +6,10 @@ import { serializePlan, deserializePlan } from '../forge-plan/serializer.js';
 import { getLogger } from '../logging/index.js';
 
 export class StorageError extends Error {
-  constructor(message: string, readonly cause?: Error) {
+  constructor(
+    message: string,
+    readonly cause?: Error,
+  ) {
     super(message);
     this.name = 'StorageError';
   }
@@ -25,7 +28,10 @@ export class PlanStore {
       await fs.mkdir(this.dataDir, { recursive: true });
       this.logger.debug('Plan store initialized', { dir: this.dataDir });
     } catch (err) {
-      throw new StorageError(`Failed to initialize storage directory: ${this.dataDir}`, err as Error);
+      throw new StorageError(
+        `Failed to initialize storage directory: ${this.dataDir}`,
+        err as Error,
+      );
     }
   }
 

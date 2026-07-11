@@ -21,7 +21,10 @@ export class GuildStateFetcher {
     }
 
     const existingCategories = new Map<string, { id: string; name: string }>();
-    const existingChannels = new Map<string, { id: string; name: string; parentId: string | null }>();
+    const existingChannels = new Map<
+      string,
+      { id: string; name: string; parentId: string | null }
+    >();
 
     for (const channel of guild.channels.cache.values()) {
       if (channel.type === 4) {
@@ -37,7 +40,17 @@ export class GuildStateFetcher {
     return { existingRoles, existingCategories, existingChannels };
   }
 
-  async createRole(guild: Guild, data: { name: string; color: number; hoist: boolean; mentionable: boolean; permissions: string; position: number }): Promise<Role> {
+  async createRole(
+    guild: Guild,
+    data: {
+      name: string;
+      color: number;
+      hoist: boolean;
+      mentionable: boolean;
+      permissions: string;
+      position: number;
+    },
+  ): Promise<Role> {
     return guild.roles.create({
       name: data.name,
       color: data.color,
@@ -48,11 +61,28 @@ export class GuildStateFetcher {
     });
   }
 
-  async createCategory(guild: Guild, data: { name: string; position: number }): Promise<CategoryChannel> {
-    return guild.channels.create({ name: data.name, type: 4, position: data.position }) as unknown as Promise<CategoryChannel>;
+  async createCategory(
+    guild: Guild,
+    data: { name: string; position: number },
+  ): Promise<CategoryChannel> {
+    return guild.channels.create({
+      name: data.name,
+      type: 4,
+      position: data.position,
+    }) as unknown as Promise<CategoryChannel>;
   }
 
-  async createTextChannel(guild: Guild, data: { name: string; topic: string; parent: CategoryChannel; position: number; nsfw: boolean; rateLimitPerUser: number }): Promise<GuildChannel> {
+  async createTextChannel(
+    guild: Guild,
+    data: {
+      name: string;
+      topic: string;
+      parent: CategoryChannel;
+      position: number;
+      nsfw: boolean;
+      rateLimitPerUser: number;
+    },
+  ): Promise<GuildChannel> {
     return guild.channels.create({
       name: data.name,
       type: 0,
@@ -64,7 +94,16 @@ export class GuildStateFetcher {
     });
   }
 
-  async createVoiceChannel(guild: Guild, data: { name: string; bitrate: number; userLimit: number; parent: CategoryChannel; position: number }): Promise<GuildChannel> {
+  async createVoiceChannel(
+    guild: Guild,
+    data: {
+      name: string;
+      bitrate: number;
+      userLimit: number;
+      parent: CategoryChannel;
+      position: number;
+    },
+  ): Promise<GuildChannel> {
     return guild.channels.create({
       name: data.name,
       type: 2,
@@ -75,7 +114,10 @@ export class GuildStateFetcher {
     });
   }
 
-  async createForumChannel(guild: Guild, data: { name: string; topic: string; parent: CategoryChannel; position: number }): Promise<GuildChannel> {
+  async createForumChannel(
+    guild: Guild,
+    data: { name: string; topic: string; parent: CategoryChannel; position: number },
+  ): Promise<GuildChannel> {
     return guild.channels.create({
       name: data.name,
       type: 15,
@@ -85,7 +127,10 @@ export class GuildStateFetcher {
     });
   }
 
-  async createAnnouncementChannel(guild: Guild, data: { name: string; topic: string; parent: CategoryChannel; position: number }): Promise<GuildChannel> {
+  async createAnnouncementChannel(
+    guild: Guild,
+    data: { name: string; topic: string; parent: CategoryChannel; position: number },
+  ): Promise<GuildChannel> {
     return guild.channels.create({
       name: data.name,
       type: 5,
@@ -95,7 +140,10 @@ export class GuildStateFetcher {
     });
   }
 
-  async createStageChannel(guild: Guild, data: { name: string; parent: CategoryChannel; position: number }): Promise<GuildChannel> {
+  async createStageChannel(
+    guild: Guild,
+    data: { name: string; parent: CategoryChannel; position: number },
+  ): Promise<GuildChannel> {
     return guild.channels.create({
       name: data.name,
       type: 13,

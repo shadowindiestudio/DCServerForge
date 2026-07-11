@@ -15,7 +15,10 @@ export class ShowPlanCommand implements SlashCommand {
     )
     .toJSON();
 
-  async execute(interaction: ChatInputCommandInteraction, deps: CommandDependencies): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    deps: CommandDependencies,
+  ): Promise<void> {
     if (!interaction.guild) {
       await replyEphemeral(interaction, 'This command can only be used in a server.');
       return;
@@ -37,24 +40,37 @@ export class ShowPlanCommand implements SlashCommand {
       const plan = await deps.store.load(planId);
       const channelCount = plan.categories.reduce((sum, c) => sum + c.channels.length, 0);
 
-      const embed = createInfoEmbed(plan.name, plan.description ?? 'No description')
-        .addFields(
-          { name: 'Plan ID', value: `\`${plan.id}\``, inline: false },
-          { name: 'Status', value: plan.status, inline: true },
-          { name: 'Roles', value: plan.roles.length.toString(), inline: true },
-          { name: 'Categories', value: plan.categories.length.toString(), inline: true },
-          { name: 'Channels', value: channelCount.toString(), inline: true },
-          { name: 'Created', value: `<t:${Math.floor(new Date(plan.createdAt).getTime() / 1000)}:R>`, inline: true },
-          { name: 'Updated', value: `<t:${Math.floor(new Date(plan.updatedAt).getTime() / 1000)}:R>`, inline: true },
-        );
+      const embed = createInfoEmbed(plan.name, plan.description ?? 'No description').addFields(
+        { name: 'Plan ID', value: `\`${plan.id}\``, inline: false },
+        { name: 'Status', value: plan.status, inline: true },
+        { name: 'Roles', value: plan.roles.length.toString(), inline: true },
+        { name: 'Categories', value: plan.categories.length.toString(), inline: true },
+        { name: 'Channels', value: channelCount.toString(), inline: true },
+        {
+          name: 'Created',
+          value: `<t:${Math.floor(new Date(plan.createdAt).getTime() / 1000)}:R>`,
+          inline: true,
+        },
+        {
+          name: 'Updated',
+          value: `<t:${Math.floor(new Date(plan.updatedAt).getTime() / 1000)}:R>`,
+          inline: true,
+        },
+      );
 
       if (plan.roles.length > 0) {
-        const roleList = plan.roles.slice(0, 15).map((r) => `• ${r.name} (pos ${r.position})`).join('\n');
+        const roleList = plan.roles
+          .slice(0, 15)
+          .map((r) => `• ${r.name} (pos ${r.position})`)
+          .join('\n');
         embed.addFields({ name: 'Roles', value: roleList, inline: false });
       }
 
       if (plan.categories.length > 0) {
-        const catList = plan.categories.slice(0, 15).map((c) => `• ${c.name} (${c.channels.length} channels)`).join('\n');
+        const catList = plan.categories
+          .slice(0, 15)
+          .map((c) => `• ${c.name} (${c.channels.length} channels)`)
+          .join('\n');
         embed.addFields({ name: 'Categories', value: catList, inline: false });
       }
 

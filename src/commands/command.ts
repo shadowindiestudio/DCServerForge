@@ -1,4 +1,7 @@
-import type { ChatInputCommandInteraction, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js';
+import type {
+  ChatInputCommandInteraction,
+  RESTPostAPIApplicationCommandsJSONBody,
+} from 'discord.js';
 import type { AppConfig } from '../types/index.js';
 import type { PlanStore } from '../storage/index.js';
 import type { PlanValidator } from '../validator/index.js';

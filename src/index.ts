@@ -5,9 +5,18 @@ import { PlanStore } from './storage/index.js';
 import { PlanValidator } from './validator/index.js';
 import { DiscordBuilder } from './builder/index.js';
 import { createProvider } from './providers/index.js';
-import { createDiscordClient, loginDiscord, shutdownDiscord, CommandRegistrar } from './discord/index.js';
+import {
+  createDiscordClient,
+  loginDiscord,
+  shutdownDiscord,
+  CommandRegistrar,
+} from './discord/index.js';
 import { createAllCommands } from './commands/index.js';
-import { InteractionRouter, ConfirmBuildHandler, CancelBuildHandler } from './interactions/index.js';
+import {
+  InteractionRouter,
+  ConfirmBuildHandler,
+  CancelBuildHandler,
+} from './interactions/index.js';
 import type { CommandDependencies } from './commands/command.js';
 
 async function main(): Promise<void> {
@@ -49,7 +58,10 @@ async function main(): Promise<void> {
         if (command) {
           await command.execute(interaction, deps);
         } else {
-          await interaction.reply({ content: `Unknown command: ${interaction.commandName}`, ephemeral: true });
+          await interaction.reply({
+            content: `Unknown command: ${interaction.commandName}`,
+            ephemeral: true,
+          });
         }
       } else if (interaction.isButton()) {
         await interactionRouter.routeButton(interaction, deps);
@@ -64,7 +76,9 @@ async function main(): Promise<void> {
         type: interaction.type,
       });
       if (interaction.isRepliable() && !interaction.replied) {
-        await interaction.reply({ content: 'An error occurred while processing your request.', ephemeral: true }).catch(() => {});
+        await interaction
+          .reply({ content: 'An error occurred while processing your request.', ephemeral: true })
+          .catch(() => {});
       }
     }
   });

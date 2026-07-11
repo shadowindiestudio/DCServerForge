@@ -1,4 +1,10 @@
-import type { ForgePlan, ForgeRole, ForgeCategory, ForgeChannel, PermissionOverwrite } from '../types/index.js';
+import type {
+  ForgePlan,
+  ForgeRole,
+  ForgeCategory,
+  ForgeChannel,
+  PermissionOverwrite,
+} from '../types/index.js';
 import type { ChannelType, OverwriteType, RoleDisplayStyle } from '../types/enums.js';
 import { PlanStatus } from '../types/enums.js';
 

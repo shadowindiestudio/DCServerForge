@@ -1,7 +1,12 @@
 import type { Client } from 'discord.js';
 import type { ForgePlan, BuildResult, BuildStepResult } from '../types/index.js';
 import { BuildPhase } from '../types/enums.js';
-import type { BuilderOptions, ProgressCallback, DiscordBuilderInterface, GuildState } from './interfaces.js';
+import type {
+  BuilderOptions,
+  ProgressCallback,
+  DiscordBuilderInterface,
+  GuildState,
+} from './interfaces.js';
 import { defaultBuilderOptions } from './interfaces.js';
 import { GuildStateFetcher } from './guild-state.js';
 import { getLogger } from '../logging/index.js';
@@ -146,7 +151,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           message: `Created role: ${role.name}`,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.ROLES, completed, total, currentEntity: role.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.ROLES,
+          completed,
+          total,
+          currentEntity: role.name,
+          stepResult: step,
+        });
       } catch (err) {
         const step: BuildStepResult = {
           phase: BuildPhase.ROLES,
@@ -156,7 +168,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           error: (err as Error).message,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.ROLES, completed, total, currentEntity: role.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.ROLES,
+          completed,
+          total,
+          currentEntity: role.name,
+          stepResult: step,
+        });
       }
     }
 
@@ -187,7 +206,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           message: `Created category: ${cat.name}`,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.CATEGORIES, completed, total, currentEntity: cat.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CATEGORIES,
+          completed,
+          total,
+          currentEntity: cat.name,
+          stepResult: step,
+        });
       } catch (err) {
         const step: BuildStepResult = {
           phase: BuildPhase.CATEGORIES,
@@ -197,7 +223,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           error: (err as Error).message,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.CATEGORIES, completed, total, currentEntity: cat.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CATEGORIES,
+          completed,
+          total,
+          currentEntity: cat.name,
+          stepResult: step,
+        });
       }
     }
 
@@ -217,7 +250,10 @@ export class DiscordBuilder implements DiscordBuilderInterface {
     const categoryMap = new Map<string, Awaited<ReturnType<GuildStateFetcher['createCategory']>>>();
     for (const cat of guild.channels.cache.values()) {
       if (cat.type === 4) {
-        categoryMap.set(cat.name.toLowerCase(), cat as Awaited<ReturnType<GuildStateFetcher['createCategory']>>);
+        categoryMap.set(
+          cat.name.toLowerCase(),
+          cat as Awaited<ReturnType<GuildStateFetcher['createCategory']>>,
+        );
       }
     }
 
@@ -232,7 +268,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           error: `Category "${cat.name}" not found in guild`,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.CHANNELS, completed, total, currentEntity: ch.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CHANNELS,
+          completed,
+          total,
+          currentEntity: ch.name,
+          stepResult: step,
+        });
         continue;
       }
 
@@ -275,7 +318,11 @@ export class DiscordBuilder implements DiscordBuilderInterface {
             });
             break;
           case 'stage':
-            created = await this.fetcher.createStageChannel(guild, { name: ch.name, parent, position: ch.position ?? 0 });
+            created = await this.fetcher.createStageChannel(guild, {
+              name: ch.name,
+              parent,
+              position: ch.position ?? 0,
+            });
             break;
           default:
             throw new Error(`Unknown channel type: ${ch.type}`);
@@ -289,7 +336,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           message: `Created ${ch.type} channel: ${ch.name}`,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.CHANNELS, completed, total, currentEntity: ch.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CHANNELS,
+          completed,
+          total,
+          currentEntity: ch.name,
+          stepResult: step,
+        });
       } catch (err) {
         const step: BuildStepResult = {
           phase: BuildPhase.CHANNELS,
@@ -299,7 +353,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
           error: (err as Error).message,
         };
         steps.push(step);
-        onProgress?.({ planId: plan.id, phase: BuildPhase.CHANNELS, completed, total, currentEntity: ch.name, stepResult: step });
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CHANNELS,
+          completed,
+          total,
+          currentEntity: ch.name,
+          stepResult: step,
+        });
       }
     }
 
@@ -323,9 +384,14 @@ export class DiscordBuilder implements DiscordBuilderInterface {
       message: 'Permission overwrite application skipped (extension point)',
     };
     steps.push(step);
-    onProgress?.({ planId: plan.id, phase: BuildPhase.PERMISSIONS, completed: 0, total: 0, currentEntity: 'permissions', stepResult: step });
+    onProgress?.({
+      planId: plan.id,
+      phase: BuildPhase.PERMISSIONS,
+      completed: 0,
+      total: 0,
+      currentEntity: 'permissions',
+      stepResult: step,
+    });
     return steps;
   }
 }
-
-
