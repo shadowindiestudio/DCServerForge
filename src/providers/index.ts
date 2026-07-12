@@ -1,5 +1,4 @@
-export { BaseProvider } from './base/base-provider.js';
-export { createProvider } from './provider-factory.js';
+export { createProvider, BaseProvider } from './base/base-provider.js';
 export type { AIProviderInterface, ProviderChatOptions } from './base/base-provider.js';
 export { NvidiaProvider } from './nvidia-provider.js';
 export { OllamaProvider } from './ollama-provider.js';
