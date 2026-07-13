@@ -97,10 +97,22 @@ export interface ValidationResult {
 export interface BuildStepResult {
   readonly phase: BuildPhase;
   readonly success: boolean;
+  /** True when the resource was detected as already existing and was not created. */
+  readonly skipped?: boolean;
+  readonly skipReason?: string;
   readonly entityId: string;
   readonly discordId?: string;
   readonly message: string;
   readonly error?: string;
+}
+
+/** Aggregated counts from a finished build, derived from BuildStepResult[]. */
+export interface BuildSummary {
+  readonly total: number;
+  readonly created: number;
+  readonly skipped: number;
+  readonly failed: number;
+  readonly elapsedMs: number;
 }
 
 /** Progress update emitted during a build. */

@@ -9,6 +9,7 @@ import type {
 } from './interfaces.js';
 import { defaultBuilderOptions } from './interfaces.js';
 import { GuildStateFetcher } from './guild-state.js';
+import { detectDuplicates } from './duplicate-detector.js';
 import { getLogger } from '../logging/index.js';
 
 export class DiscordBuilder implements DiscordBuilderInterface {
@@ -32,28 +33,33 @@ export class DiscordBuilder implements DiscordBuilderInterface {
     try {
       const guild = await this.fetcher.fetchGuild(guildId);
 
+      // Fetch live guild state once upfront for duplicate detection.
+      const guildState = await this.fetcher.getCurrentState(guildId);
+      const duplicates = detectDuplicates(plan, guildState);
+
       // Phase 1: Roles
       if (!opts.skipRoles && plan.roles.length > 0) {
-        const roleSteps = await this.buildRoles(plan, guild, onProgress);
-        steps.push(...roleSteps);
+        steps.push(...(await this.buildRoles(plan, guild, duplicates.roleNames, onProgress)));
       }
 
       // Phase 2: Categories
       if (!opts.skipCategories && plan.categories.length > 0) {
-        const catSteps = await this.buildCategories(plan, guild, onProgress);
-        steps.push(...catSteps);
+        steps.push(
+          ...(await this.buildCategories(plan, guild, duplicates.categoryNames, onProgress)),
+        );
       }
 
-      // Phase 3: Channels
+      // Phase 3: Channels — refresh category cache after creation
       if (!opts.skipChannels) {
-        const chSteps = await this.buildChannels(plan, guild, onProgress);
-        steps.push(...chSteps);
+        await guild.channels.fetch();
+        steps.push(
+          ...(await this.buildChannels(plan, guild, duplicates.channelKeys, onProgress)),
+        );
       }
 
       // Phase 4: Permissions
       if (!opts.skipPermissions) {
-        const permSteps = await this.buildPermissions(plan, guild, onProgress);
-        steps.push(...permSteps);
+        steps.push(...(await this.buildPermissions(plan, guild, onProgress)));
       }
 
       return {
@@ -126,6 +132,7 @@ export class DiscordBuilder implements DiscordBuilderInterface {
   private async buildRoles(
     plan: ForgePlan,
     guild: Awaited<ReturnType<GuildStateFetcher['fetchGuild']>>,
+    duplicateRoleNames: ReadonlySet<string>,
     onProgress?: ProgressCallback,
   ): Promise<BuildStepResult[]> {
     const steps: BuildStepResult[] = [];
@@ -133,6 +140,29 @@ export class DiscordBuilder implements DiscordBuilderInterface {
     let completed = 0;
 
     for (const role of plan.roles) {
+      const isDuplicate = duplicateRoleNames.has(role.name.toLowerCase());
+
+      if (isDuplicate) {
+        const step: BuildStepResult = {
+          phase: BuildPhase.ROLES,
+          success: true,
+          skipped: true,
+          skipReason: 'Role already exists in the server',
+          entityId: role.id,
+          message: `Skipped role (already exists): ${role.name}`,
+        };
+        steps.push(step);
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.ROLES,
+          completed,
+          total,
+          currentEntity: role.name,
+          stepResult: step,
+        });
+        continue;
+      }
+
       try {
         const created = await this.fetcher.createRole(guild, {
           name: role.name,
@@ -185,6 +215,7 @@ export class DiscordBuilder implements DiscordBuilderInterface {
   private async buildCategories(
     plan: ForgePlan,
     guild: Awaited<ReturnType<GuildStateFetcher['fetchGuild']>>,
+    duplicateCategoryNames: ReadonlySet<string>,
     onProgress?: ProgressCallback,
   ): Promise<BuildStepResult[]> {
     const steps: BuildStepResult[] = [];
@@ -192,6 +223,29 @@ export class DiscordBuilder implements DiscordBuilderInterface {
     let completed = 0;
 
     for (const cat of plan.categories) {
+      const isDuplicate = duplicateCategoryNames.has(cat.name.toLowerCase());
+
+      if (isDuplicate) {
+        const step: BuildStepResult = {
+          phase: BuildPhase.CATEGORIES,
+          success: true,
+          skipped: true,
+          skipReason: 'Category already exists in the server',
+          entityId: cat.id,
+          message: `Skipped category (already exists): ${cat.name}`,
+        };
+        steps.push(step);
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CATEGORIES,
+          completed,
+          total,
+          currentEntity: cat.name,
+          stepResult: step,
+        });
+        continue;
+      }
+
       try {
         const created = await this.fetcher.createCategory(guild, {
           name: cat.name,
@@ -240,6 +294,7 @@ export class DiscordBuilder implements DiscordBuilderInterface {
   private async buildChannels(
     plan: ForgePlan,
     guild: Awaited<ReturnType<GuildStateFetcher['fetchGuild']>>,
+    duplicateChannelKeys: ReadonlySet<string>,
     onProgress?: ProgressCallback,
   ): Promise<BuildStepResult[]> {
     const steps: BuildStepResult[] = [];
@@ -248,16 +303,40 @@ export class DiscordBuilder implements DiscordBuilderInterface {
     let completed = 0;
 
     const categoryMap = new Map<string, Awaited<ReturnType<GuildStateFetcher['createCategory']>>>();
-    for (const cat of guild.channels.cache.values()) {
-      if (cat.type === 4) {
+    for (const ch of guild.channels.cache.values()) {
+      if (ch.type === 4) {
         categoryMap.set(
-          cat.name.toLowerCase(),
-          cat as Awaited<ReturnType<GuildStateFetcher['createCategory']>>,
+          ch.name.toLowerCase(),
+          ch as Awaited<ReturnType<GuildStateFetcher['createCategory']>>,
         );
       }
     }
 
     for (const { ch, cat } of allChannels) {
+      const channelKey = `${cat.name.toLowerCase()}/${ch.name.toLowerCase()}`;
+      const isDuplicate = duplicateChannelKeys.has(channelKey);
+
+      if (isDuplicate) {
+        const step: BuildStepResult = {
+          phase: BuildPhase.CHANNELS,
+          success: true,
+          skipped: true,
+          skipReason: 'Channel already exists in the server',
+          entityId: ch.id,
+          message: `Skipped ${ch.type} channel (already exists): ${ch.name}`,
+        };
+        steps.push(step);
+        onProgress?.({
+          planId: plan.id,
+          phase: BuildPhase.CHANNELS,
+          completed,
+          total,
+          currentEntity: ch.name,
+          stepResult: step,
+        });
+        continue;
+      }
+
       const parent = categoryMap.get(cat.name.toLowerCase());
       if (!parent) {
         const step: BuildStepResult = {

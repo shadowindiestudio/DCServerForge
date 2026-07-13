@@ -1,6 +1,12 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
 import type { SlashCommand, CommandDependencies } from '../command.js';
-import { createSuccessEmbed, createErrorEmbed, replyEphemeral } from '../../discord/embeds.js';
+import {
+  createErrorEmbed,
+  replyEphemeral,
+  createProgressEmbed,
+  createBuildSummaryEmbed,
+} from '../../discord/embeds.js';
+import type { BuildProgress, BuildSummary, BuildStepResult } from '../../types/index.js';
 import { getLogger } from '../../logging/index.js';
 
 export class BuildCommand implements SlashCommand {
@@ -39,8 +45,9 @@ export class BuildCommand implements SlashCommand {
     try {
       const exists = await deps.store.exists(planId);
       if (!exists) {
-        const embed = createErrorEmbed('Plan Not Found', `No plan found with ID: \`${planId}\``);
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+          embeds: [createErrorEmbed('Plan Not Found', `No plan found with ID: \`${planId}\``)],
+        });
         return;
       }
 
@@ -48,38 +55,136 @@ export class BuildCommand implements SlashCommand {
       const validation = deps.validator.validate(plan);
 
       if (!validation.valid && !dryRun) {
-        const embed = createErrorEmbed(
-          'Plan Not Validated',
-          'The plan has validation errors. Run `/validate` first or fix the issues before building.',
-        );
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+          embeds: [
+            createErrorEmbed(
+              'Plan Not Validated',
+              'The plan has validation errors. Run `/validate` first or fix the issues before building.',
+            ),
+          ],
+        });
         return;
       }
 
       logger.info('Starting build', { planName: plan.name });
-      const result = await deps.builder.build(plan, interaction.guildId!, { dryRun });
 
-      if (result.success) {
-        const successCount = result.steps.filter((s) => s.success).length;
-        const failCount = result.steps.filter((s) => !s.success).length;
-        const embed = createSuccessEmbed(
-          dryRun ? 'Dry Run Complete' : 'Build Complete',
-          `Plan \`${plan.name}\` ${dryRun ? 'simulated' : 'deployed'} with ${successCount} successful step(s)${failCount > 0 ? ` and ${failCount} failure(s)` : ''}.`,
-        );
-        await interaction.editReply({ embeds: [embed] });
-        logger.info('Build completed', { successCount, failCount });
-      } else {
-        const embed = createErrorEmbed(
-          'Build Failed',
-          result.error ?? 'Unknown error during build.',
-        );
-        await interaction.editReply({ embeds: [embed] });
-        logger.error('Build failed', new Error(result.error ?? 'Unknown'));
+      // Track live counters updated by the progress callback.
+      const startedAt = Date.now();
+      let created = 0;
+      let skipped = 0;
+      let failed = 0;
+      let lastProgress: BuildProgress | null = null;
+
+      // Debounce Discord edits: Discord rate-limits message edits to ~5/5s per channel.
+      // We send at most one update every 2.5 seconds to stay well within limits.
+      let pendingUpdate: ReturnType<typeof setTimeout> | null = null;
+
+      const flushProgressUpdate = async (progress: BuildProgress): Promise<void> => {
+        try {
+          await interaction.editReply({
+            embeds: [
+              createProgressEmbed(plan.name, progress, startedAt, created, skipped, failed),
+            ],
+          });
+        } catch {
+          // Silently swallow edit errors (interaction may have expired).
+        }
+      };
+
+      const scheduleProgressUpdate = (progress: BuildProgress): void => {
+        lastProgress = progress;
+        if (pendingUpdate !== null) return;
+        pendingUpdate = setTimeout(() => {
+          pendingUpdate = null;
+          if (lastProgress) void flushProgressUpdate(lastProgress);
+        }, 2500);
+      };
+
+      const onProgress = (progress: BuildProgress): void => {
+        const step = progress.stepResult;
+        if (step) {
+          if (step.skipped) skipped++;
+          else if (!step.success) failed++;
+          else created++;
+        }
+        scheduleProgressUpdate(progress);
+      };
+
+      // Send the initial progress embed immediately so the user sees activity.
+      if (plan.roles.length > 0 || plan.categories.length > 0) {
+        const firstPhase = plan.roles.length > 0 ? 'roles' : 'categories';
+        try {
+          await interaction.editReply({
+            embeds: [
+              createProgressEmbed(
+                plan.name,
+                {
+                  planId: plan.id,
+                  phase: firstPhase as BuildProgress['phase'],
+                  completed: 0,
+                  total:
+                    firstPhase === 'roles' ? plan.roles.length : plan.categories.length,
+                  currentEntity: 'Starting…',
+                },
+                startedAt,
+                0,
+                0,
+                0,
+              ),
+            ],
+          });
+        } catch {
+          // Non-fatal if initial paint fails.
+        }
       }
+
+      const result = await deps.builder.build(plan, interaction.guildId!, { dryRun }, onProgress);
+
+      // Cancel any pending debounced update — we're about to replace with final summary.
+      if (pendingUpdate !== null) {
+        clearTimeout(pendingUpdate);
+        pendingUpdate = null;
+      }
+
+      const elapsedMs = Date.now() - startedAt;
+
+      // Recount from authoritative result steps to stay in sync.
+      const finalCreated = result.steps.filter((s) => !s.skipped && s.success).length;
+      const finalSkipped = result.steps.filter((s) => s.skipped === true).length;
+      const finalFailed = result.steps.filter((s) => !s.success && !s.skipped).length;
+
+      const summary: BuildSummary = {
+        total: result.steps.length,
+        created: finalCreated,
+        skipped: finalSkipped,
+        failed: finalFailed,
+        elapsedMs,
+      };
+
+      const skippedMessages = result.steps
+        .filter((s): s is BuildStepResult & { skipped: true } => s.skipped === true)
+        .map((s) => s.message);
+
+      await interaction.editReply({
+        embeds: [createBuildSummaryEmbed(plan.name, result.success, dryRun, summary, skippedMessages)],
+      });
+
+      logger.info('Build finished', {
+        success: result.success,
+        created: finalCreated,
+        skipped: finalSkipped,
+        failed: finalFailed,
+        elapsedMs,
+      });
     } catch (err) {
       logger.error('Build command failed', err as Error);
-      const embed = createErrorEmbed('Build Error', (err as Error).message);
-      await interaction.editReply({ embeds: [embed] });
+      try {
+        await interaction.editReply({
+          embeds: [createErrorEmbed('Build Error', (err as Error).message)],
+        });
+      } catch {
+        // Interaction may have already expired.
+      }
     }
   }
 }
